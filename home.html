@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Home — MERAC</title>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js for reports -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root{
+      --bg-1: #031726;   /* deep navy */
+      --bg-2: #052a43;   /* mid deep blue */
+      --bg-3: #0b5f89;   /* slight sky tint */
+      --accent: #87ceeb; /* sky */
+      --glass: rgba(255,255,255,0.04);
+      --muted: #bcdbe9;
+      --card-radius: 14px;
+      --glass-border: rgba(255,255,255,0.06);
+    }
+
+    /* Reset & base */
+    html,body { height:100%; margin:0; font-family: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+    body {
+      background: linear-gradient(120deg, var(--bg-1) 0%, var(--bg-2) 45%, var(--bg-3) 100%);
+      color: #e9f8ff;
+      min-height:100vh;
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+      padding:28px;
+      box-sizing:border-box;
+    }
+    a { color:inherit; text-decoration:none; }
+
+    /* Page container */
+    .container {
+      width:100%;
+      max-width:1150px;
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+    }
+
+    /* Sticky glass header with logo + language toggle */
+    header.topbar {
+      position:sticky;
+      top:18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:14px 18px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      backdrop-filter: blur(12px) saturate(140%);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+      z-index:40;
+    }
+
+    .brand {
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .logo-wrap {
+      width:54px;height:54px;border-radius:12px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      display:flex;align-items:center;justify-content:center;
+      border:1px solid rgba(255,255,255,0.03);
+    }
+    .logo-text { font-weight:800; color:var(--accent); letter-spacing:0.4px; font-size:1.05rem; }
+    .top-actions { display:flex; gap:8px; align-items:center; }
+
+    .lang-toggle {
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.06);
+      padding:8px 10px;
+      border-radius:10px;
+      cursor:pointer;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      color:var(--accent);
+    }
+    .lang-toggle:active{ transform:translateY(1px); }
+
+    /* Hero (welcome + snapshot) */
+    .hero {
+      display:flex;
+      gap:18px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .welcome {
+      flex:1 1 360px;
+      min-width:260px;
+      padding:18px;
+      border-radius: var(--card-radius);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border:1px solid var(--glass-border);
+      box-shadow: 0 14px 36px rgba(0,0,0,0.45);
+      backdrop-filter: blur(14px);
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .welcome h1 {
+      margin:0;
+      font-size:1.32rem;
+      color:var(--accent);
+      font-weight:900;
+    }
+    .welcome p { margin:0; color:var(--muted); font-size:0.95rem; }
+
+    /* Market snapshot (keep similar to previous page card) */
+    .snapshot {
+      width:360px;
+      min-width:260px;
+      padding:12px;
+      border-radius: var(--card-radius);
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      border:1px solid var(--glass-border);
+      box-shadow: 0 12px 34px rgba(0,0,0,0.4);
+      backdrop-filter: blur(14px);
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .snapshot .head { display:flex; justify-content:space-between; align-items:center; }
+    .snapshot .head .title { color:var(--accent); font-weight:800; }
+    .coins { display:flex; gap:12px; align-items:center; justify-content:space-between; }
+    .coin {
+      flex:1;
+      padding:10px;
+      border-radius:10px;
+      background: rgba(255,255,255,0.015);
+      border:1px solid rgba(255,255,255,0.02);
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      text-align:right;
+    }
+    .coin .sym { color:var(--accent); font-weight:800; font-size:0.98rem; }
+    .coin .val { font-weight:800; color:#eafcff; }
+    .coin .chg.up { color:#88f0c1; }
+    .coin .chg.down { color:#ffb0b0; }
+
+    .spark { height:46px; }
+
+    /* Hex grid buttons (main nav) */
+    .hex-grid {
+      margin-top:6px;
+      display:grid;
+      gap:12px;
+      grid-template-columns: repeat(3, minmax(110px,1fr));
+      justify-items:center;
+      align-items:center;
+    }
+    @media (max-width:880px){ .hex-grid { grid-template-columns: repeat(2, minmax(110px,1fr)); } }
+    @media (max-width:520px){ .hex-grid { grid-template-columns: repeat(1, minmax(140px,1fr)); } }
+
+    /* Hex button using clip-path polygon */
+    .hex {
+      width:140px;
+      height:120px;
+      display:inline-grid;
+      place-items:center;
+      cursor:pointer;
+      -webkit-clip-path: polygon(25% 6%, 75% 6%, 100% 50%, 75% 94%, 25% 94%, 0% 50%);
+      clip-path: polygon(25% 6%, 75% 6%, 100% 50%, 75% 94%, 25% 94%, 0% 50%);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border:1px solid rgba(255,255,255,0.03);
+      color:var(--muted);
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+      position:relative;
+      text-align:center;
+    }
+    .hex:focus { outline:none; transform:translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,0.6); border-color: rgba(135,206,235,0.12); }
+    .hex:hover { transform: translateY(-6px); border-color: rgba(135,206,235,0.12); }
+    .hex .inner { display:flex; flex-direction:column; gap:8px; align-items:center; justify-content:center; }
+    .hex i { width:30px;height:30px;color:var(--accent); }
+    .hex .lbl { font-weight:800; color:var(--accent); font-size:0.95rem; }
+
+    /* Quick summary cards */
+    .summary {
+      display:flex;
+      gap:12px;
+      margin-top:12px;
+      flex-wrap:wrap;
+    }
+    .card {
+      flex:1 1 200px;
+      min-width:180px;
+      padding:12px;
+      border-radius:12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border:1px solid rgba(255,255,255,0.03);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+      backdrop-filter: blur(12px);
+    }
+    .card .label { color:var(--muted); font-size:0.92rem; margin-bottom:6px; }
+    .card .value { color:var(--accent); font-weight:900; font-size:1.15rem; }
+
+    /* Footer area small help */
+    footer.small {
+      margin-top:18px;
+      color:var(--muted);
+      font-size:0.9rem;
+      text-align:center;
+    }
+
+    /* Modal base */
+    .modal-wrap {
+      display:none;
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,0.6);
+      align-items:center;
+      justify-content:center;
+      z-index:80;
+      padding:18px;
+    }
+    .modal {
+      width:100%;
+      max-width:720px;
+      border-radius:12px;
+      padding:18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      border:1px solid rgba(135,206,235,0.10);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+    }
+    .modal .close {
+      float:left; background:transparent; border:none; color:var(--accent); font-size:20px; cursor:pointer;
+    }
+    .modal h3 { margin:0 0 8px; color:var(--accent); }
+
+    /* small responsive tweaks */
+    @media (max-width:720px) {
+      .snapshot { width:100%; order:2; }
+      .welcome { order:1; }
+      header.topbar { padding:12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" role="main">
+    <!-- TOPBAR -->
+    <header class="topbar" role="banner" aria-label="Top bar">
+      <div class="brand">
+        <div class="logo-wrap" aria-hidden="true">
+<img src="static/img/logo.png" alt="MERAC Logo" style="height:26px;width:auto;">
+        </div>
+        <div>
+          <div class="logo-text">MERAC</div>
+          <div style="color:var(--muted); font-size:0.85rem;">Smart Investment Platform</div>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <button class="lang-toggle" id="langToggle" aria-pressed="false" title="Toggle language">
+          <i data-lucide="globe" style="width:18px;height:18px;"></i>
+          <span id="langLabel">EN</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- HERO: Welcome + Market Snapshot -->
+    <section class="hero" aria-label="Welcome and market snapshot">
+      <div class="welcome" role="region" aria-label="welcome">
+        <h1>Welcome to MERAC</h1>
+        <p id="welcomeSecondary">Your investment journey starts here — simple, secure, daily returns.</p>
+
+        <!-- Hex buttons grid -->
+        <nav class="hex-grid" aria-label="Main actions" id="hexGrid">
+          <button class="hex" id="btnPlan" aria-label="Plan" title="Plan" tabindex="0">
+            <div class="inner"><i data-lucide="pie-chart"></i><div class="lbl" data-i18n="plan">Plan</div></div>
+          </button>
+
+          <button class="hex" id="btnSupport" aria-label="Support" title="Support" tabindex="0">
+            <div class="inner"><i data-lucide="life-buoy"></i><div class="lbl" data-i18n="support">Support</div></div>
+          </button>
+
+          <button class="hex" id="btnProfile" aria-label="Profile" title="Profile" tabindex="0">
+            <div class="inner"><i data-lucide="user"></i><div class="lbl" data-i18n="profile">Profile</div></div>
+          </button>
+
+          <button class="hex" id="btnTeam" aria-label="Team" title="Team" tabindex="0">
+            <div class="inner"><i data-lucide="users"></i><div class="lbl" data-i18n="team">Team</div></div>
+          </button>
+
+          <button class="hex" id="btnNews" aria-label="News" title="News" tabindex="0">
+            <div class="inner"><i data-lucide="book-open"></i><div class="lbl" data-i18n="news">News</div></div>
+          </button>
+
+          <button class="hex" id="btnReports" aria-label="Reports" title="Reports" tabindex="0">
+            <div class="inner"><i data-lucide="bar-chart-2"></i><div class="lbl" data-i18n="reports">Reports</div></div>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Snapshot: real prices (fetched) + spark -->
+      <aside class="snapshot" role="region" aria-label="Market snapshot">
+        <div class="head">
+          <div class="title" data-i18n="marketSnapshot">Market Snapshot</div>
+          <div style="color:var(--muted);font-size:0.9rem;" id="snapshotUpdated">--</div>
+        </div>
+
+        <div class="coins" aria-hidden="false">
+          <div class="coin" id="coinBTC">
+            <div class="sym">BTC</div>
+            <div class="val" id="btcPrice">--</div>
+            <div class="chg up" id="btcChange">--</div>
+          </div>
+
+          <div class="coin" id="coinETH">
+            <div class="sym">ETH</div>
+            <div class="val" id="ethPrice">--</div>
+            <div class="chg down" id="ethChange">--</div>
+          </div>
+        </div>
+
+        <canvas id="marketSpark" class="spark" aria-hidden="true"></canvas>
+      </aside>
+    </section>
+
+    <!-- Quick summary -->
+    <section class="summary" aria-label="Quick summary">
+      <div class="card" role="article" aria-label="Total balance">
+        <div class="label" data-i18n="totalBalance">Total Balance</div>
+        <div class="value" id="totalBalance">0.00 USD</div>
+      </div>
+
+      <div class="card" role="article" aria-label="Today's profit">
+        <div class="label" data-i18n="todaysProfit">Today's Profit</div>
+        <div class="value" id="todaysProfit">0.00 USD</div>
+      </div>
+
+      <div class="card" role="article" aria-label="Active plan">
+        <div class="label" data-i18n="activePlan">Active Plan</div>
+        <div class="value" id="activePlan">—</div>
+      </div>
+    </section>
+
+    <footer class="small" aria-hidden="false">
+      Tip: Use the buttons above to navigate. All controls are interactive (demo).
+    </footer>
+  </div>
+
+  <!-- MODALS (Plan, Support, Profile, Team, News, Reports) -->
+  <div class="modal-wrap" id="modalWrap" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal" role="document" aria-live="polite">
+      <button class="close" id="modalClose" aria-label="Close">&times;</button>
+      <div id="modalContentArea">
+        <!-- content injected -->
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ========== Icons init ==========
+  document.addEventListener('DOMContentLoaded', ()=> lucide.createIcons());
+
+  // ========== i18n strings ==========
+  const I18N = {
+    en: {
+      plan: "Plan",
+      support: "Support",
+      profile: "Profile",
+      team: "Team",
+      news: "News",
+      reports: "Reports",
+      marketSnapshot: "Market Snapshot",
+      totalBalance: "Total Balance",
+      todaysProfit: "Today's Profit",
+      activePlan: "Active Plan",
+      subscribe: "Subscribe",
+      invest: "Invest",
+      close: "Close",
+      contactSupport: "Contact Support",
+      send: "Send",
+      viewNews: "View News",
+      viewReports: "View Reports",
+      welcomeNote: "Your investment journey starts here — simple, secure, daily returns."
+    },
+    ar: {
+      plan: "الخطط",
+      support: "الدعم",
+      profile: "الحساب",
+      team: "الفريق",
+      news: "الأخبار",
+      reports: "التقارير",
+      marketSnapshot: "ملخص السوق",
+      totalBalance: "إجمالي الرصيد",
+      todaysProfit: "أرباح اليوم",
+      activePlan: "الخطة النشطة",
+      subscribe: "اشترك",
+      invest: "استثمر",
+      close: "إغلاق",
+      contactSupport: "تواصل مع الدعم",
+      send: "أرسل",
+      viewNews: "عرض الأخبار",
+      viewReports: "عرض التقارير",
+      welcomeNote: "بدء رحلتك الاستثمارية هنا — بسيطة، آمنة، أرباح يومية."
+    }
+  };
+
+  let currentLang = 'en'; // default
+  function translateTo(lang){
+    currentLang = lang;
+    document.documentElement.lang = lang === 'ar' ? 'ar' : 'en';
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    // update elements with data-i18n
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+      const key = el.getAttribute('data-i18n');
+      if(I18N[lang] && I18N[lang][key]) el.textContent = I18N[lang][key];
+    });
+    // update secondary welcome paragraph (kept translatable)
+    const w = document.getElementById('welcomeSecondary');
+    if(w) w.textContent = I18N[lang].welcomeNote;
+    // lang label
+    document.getElementById('langLabel').textContent = lang === 'ar' ? 'AR' : 'EN';
+  }
+  translateTo(currentLang);
+
+  // langToggle handler
+  document.getElementById('langToggle').addEventListener('click', function(){
+    const next = currentLang === 'en' ? 'ar' : 'en';
+    translateTo(next);
+    this.setAttribute('aria-pressed', String(next === 'ar'));
+  });
+
+  // ========== Modal utilities ==========
+  const modalWrap = document.getElementById('modalWrap');
+  const modalContentArea = document.getElementById('modalContentArea');
+  const modalCloseBtn = document.getElementById('modalClose');
+
+  function openModal(html){
+    modalContentArea.innerHTML = html;
+    modalWrap.style.display = 'flex';
+    modalWrap.setAttribute('aria-hidden','false');
+    lucide.createIcons();
+  }
+  function closeModal(){
+    modalWrap.style.display = 'none';
+    modalWrap.setAttribute('aria-hidden','true');
+    modalContentArea.innerHTML = '';
+  }
+  modalCloseBtn.addEventListener('click', closeModal);
+  modalWrap.addEventListener('click', (e)=> { if(e.target === modalWrap) closeModal(); });
+
+  document.addEventListener('keydown', (e)=> { if(e.key === 'Escape') closeModal(); });
+
+  // ========== Hex buttons actions ==========
+
+  // PLAN modal (list plans + Invest actions)
+  document.getElementById('btnPlan').addEventListener('click', ()=> {
+    const html = `
+      <h3>${I18N[currentLang].plan}</h3>
+      <p style="color:var(--muted);margin-top:8px">Choose an investment plan that suits you. Daily returns are credited automatically.</p>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:rgba(255,255,255,0.01);">
+          <div><strong>Starter</strong><div style="color:var(--muted);font-size:0.9rem">Min: $25 • Daily: 2%</div></div>
+          <div><button class="btn primary" onclick="investPlan('Starter')">${I18N[currentLang].invest}</button></div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:rgba(255,255,255,0.01);">
+          <div><strong>Growth</strong><div style="color:var(--muted);font-size:0.9rem">Min: $150 • Daily: 7%</div></div>
+          <div><button class="btn primary" onclick="investPlan('Growth')">${I18N[currentLang].invest}</button></div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:rgba(255,255,255,0.01);">
+          <div><strong>Pro</strong><div style="color:var(--muted);font-size:0.9rem">Min: $1,000 • Daily: up to 21%</div></div>
+          <div><button class="btn primary" onclick="investPlan('Pro')">${I18N[currentLang].invest}</button></div>
+        </div>
+      </div>
+    `;
+    openModal(html);
+  });
+
+  window.investPlan = function(name){
+    closeModal();
+    alert(`Invest flow (demo): you chose ${name}. Connect to backend to complete investment.`);
+  };
+
+  // SUPPORT modal (contact form)
+  document.getElementById('btnSupport').addEventListener('click', ()=> {
+    const html = `
+      <h3>${I18N[currentLang].support}</h3>
+      <p style="color:var(--muted);margin-top:8px">Need help? Send us a message and our team will respond shortly.</p>
+      <form id="supportForm" style="margin-top:12px;display:flex;flex-direction:column;gap:8px;">
+        <input required placeholder="Name" id="supName" style="padding:10px;border-radius:8px;border:1px solid var(--glass-border);background:transparent;color:inherit" />
+        <input required type="email" placeholder="Email" id="supEmail" style="padding:10px;border-radius:8px;border:1px solid var(--glass-border);background:transparent;color:inherit" />
+        <textarea required id="supMsg" placeholder="Message" rows="4" style="padding:10px;border-radius:8px;border:1px solid var(--glass-border);background:transparent;color:inherit"></textarea>
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+          <button type="button" class="btn ghost" onclick="closeModal()">${I18N[currentLang].close}</button>
+          <button type="submit" class="btn primary">${I18N[currentLang].send}</button>
+        </div>
+      </form>
+    `;
+    openModal(html);
+    // form handler
+    setTimeout(()=> {
+      const form = document.getElementById('supportForm');
+      if(form){
+        form.addEventListener('submit', (e)=>{
+          e.preventDefault();
+          // demo: just show success
+          alert('Support request submitted (demo). Our team will contact you.');
+          closeModal();
+        });
+      }
+    }, 60);
+  });
+
+  // PROFILE modal (simple editable profile demo)
+  document.getElementById('btnProfile').addEventListener('click', ()=> {
+    const html = `
+      <h3>${I18N[currentLang].profile}</h3>
+      <div style="color:var(--muted);margin-top:8px">Manage your basic profile information (demo).</div>
+      <form id="profileForm" style="margin-top:12px;display:flex;flex-direction:column;gap:8px;">
+        <input id="pfName" placeholder="Full name" value="Amar Ahmed" style="padding:10px;border-radius:8px;border:1px solid var(--glass-border);background:transparent;color:inherit" />
+        <input id="pfEmail" placeholder="Email" value="amar@example.com" style="padding:10px;border-radius:8px;border:1px solid var(--glass-border);background:transparent;color:inherit" />
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+          <button type="button" class="btn ghost" onclick="closeModal()">${I18N[currentLang].close}</button>
+          <button type="submit" class="btn primary">Save</button>
+        </div>
+      </form>
+    `;
+    openModal(html);
+    setTimeout(()=> {
+      const form = document.getElementById('profileForm');
+      if(form) form.addEventListener('submit', (e)=> {
+        e.preventDefault();
+        alert('Profile saved (demo).');
+        closeModal();
+      });
+    },60);
+  });
+
+  // TEAM modal
+  document.getElementById('btnTeam').addEventListener('click', ()=> {
+    const html = `
+      <h3>${I18N[currentLang].team}</h3>
+      <p style="color:var(--muted);margin-top:8px">Meet the core team behind MERAC (demo).</p>
+      <div style="margin-top:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;">
+        <div style="padding:10px;border-radius:8px;background:rgba(255,255,255,0.01)"><strong>Olivia R.</strong><div style="color:var(--muted)">Head of Investments</div></div>
+        <div style="padding:10px;border-radius:8px;background:rgba(255,255,255,0.01)"><strong>Liam S.</strong><div style="color:var(--muted)">Risk & Ops</div></div>
+        <div style="padding:10px;border-radius:8px;background:rgba(255,255,255,0.01)"><strong>Emma K.</strong><div style="color:var(--muted)">Security Lead</div></div>
+        <div style="padding:10px;border-radius:8px;background:rgba(255,255,255,0.01)"><strong>Noah B.</strong><div style="color:var(--muted)">Product</div></div>
+      </div>
+    `;
+    openModal(html);
+  });
+
+  // NEWS: navigate to /news (or open modal preview)
+  document.getElementById('btnNews').addEventListener('click', ()=> {
+    // best UX: open short preview modal and offer to navigate.
+    const html = `
+      <h3>${I18N[currentLang].news}</h3>
+      <p style="color:var(--muted);margin-top:8px">Latest updates & important announcements. Open the full news page to read everything.</p>
+      <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end;">
+        <button class="btn ghost" onclick="closeModal()">${I18N[currentLang].close}</button>
+        <button class="btn primary" onclick="goToNews()">Open News</button>
+      </div>
+    `;
+    openModal(html);
+  });
+
+  window.goToNews = function(){
+    // navigate to /news (if exists) — fallback demo
+    closeModal();
+    try { window.location.href = '/news'; } catch(e){ alert('Open news (demo).'); }
+  };
+
+  // REPORTS modal with Chart.js demo
+  document.getElementById('btnReports').addEventListener('click', ()=> {
+    const html = `
+      <h3>${I18N[currentLang].reports}</h3>
+      <p style="color:var(--muted);margin-top:8px">Quick performance report (demo).</p>
+      <div style="margin-top:12px;">
+        <canvas id="reportsChart" style="width:100%;max-height:320px"></canvas>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px;">
+        <button class="btn ghost" onclick="closeModal()">${I18N[currentLang].close}</button>
+      </div>
+    `;
+    openModal(html);
+    // render chart shortly
+    setTimeout(()=> {
+      const ctx = document.getElementById('reportsChart')?.getContext('2d');
+      if(!ctx) return;
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul'],
+          datasets: [{
+            label: 'Portfolio value (USD)',
+            data: [1200, 1700, 1500, 2200, 2600, 3300, 4100],
+            borderColor: '#87ceeb',
+            backgroundColor: (ctxGrad=>{
+              const g = ctxGrad.createLinearGradient(0,0,0,200);
+              g.addColorStop(0, 'rgba(135,206,235,0.18)');
+              g.addColorStop(1, 'rgba(135,206,235,0.02)');
+              return g;
+            })(ctx),
+            fill: true,
+            tension: 0.32,
+            pointRadius: 3
+          }]
+        },
+        options: { responsive:true, plugins:{legend:{display:false}} }
+      });
+    }, 80);
+  });
+
+  // Keyboard accessibility: Enter triggers button click for hex grid
+  document.getElementById('hexGrid').addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      const target = e.target;
+      if(target && typeof target.click === 'function') target.click();
+    }
+  });
+
+  // ========== Market snapshot: fetch real prices from CoinGecko (public API) ==========
+  const btcPriceEl = document.getElementById('btcPrice');
+  const btcChangeEl = document.getElementById('btcChange');
+  const ethPriceEl = document.getElementById('ethPrice');
+  const ethChangeEl = document.getElementById('ethChange');
+  const snapshotUpdatedEl = document.getElementById('snapshotUpdated');
+  const marketSparkCtx = document.getElementById('marketSpark')?.getContext('2d');
+
+  // simple sparkline dataset
+  let sparkData = Array.from({length:26}, ()=> 0);
+
+  async function fetchMarketData(){
+    const api = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true';
+    try {
+      const res = await fetch(api);
+      if(!res.ok) throw new Error('Network');
+      const json = await res.json();
+      const btc = json.bitcoin;
+      const eth = json.ethereum;
+      if(btc && eth){
+        const btcVal = btc.usd;
+        const btcCh = btc.usd_24h_change;
+        const ethVal = eth.usd;
+        const ethCh = eth.usd_24h_change;
+
+        btcPriceEl.textContent = `${Intl.NumberFormat().format(Math.round(btcVal*100)/100)} USD`;
+        btcChangeEl.textContent = `${btcCh >= 0 ? '+' : ''}${btcCh.toFixed(2)}%`;
+        btcChangeEl.className = 'chg ' + (btcCh >= 0 ? 'up' : 'down');
+
+        ethPriceEl.textContent = `${Intl.NumberFormat().format(Math.round(ethVal*100)/100)} USD`;
+        ethChangeEl.textContent = `${ethCh >= 0 ? '+' : ''}${ethCh.toFixed(2)}%`;
+        ethChangeEl.className = 'chg ' + (ethCh >= 0 ? 'up' : 'down');
+
+        snapshotUpdatedEl.textContent = `Updated ${new Date().toLocaleTimeString()}`;
+        // update spark data (mix btc & eth for demo)
+        const avg = (btcVal/1000 + ethVal/100)/2;
+        sparkData.shift();
+        sparkData.push(avg);
+        renderSpark(sparkData);
+      } else {
+        throw new Error('Bad data');
+      }
+    } catch(err){
+      // fallback demo values if API fails
+      const fallbackBTC = 62300 + (Math.random()-0.5)*800;
+      const fallbackETH = 3200 + (Math.random()-0.5)*120;
+      btcPriceEl.textContent = `${Math.round(fallbackBTC)} USD`;
+      btcChangeEl.textContent = `+${(Math.random()*2).toFixed(2)}%`;
+      btcChangeEl.className = 'chg up';
+      ethPriceEl.textContent = `${Math.round(fallbackETH)} USD`;
+      ethChangeEl.textContent = `-${(Math.random()*2).toFixed(2)}%`;
+      ethChangeEl.className = 'chg down';
+      snapshotUpdatedEl.textContent = `Updated (offline demo) ${new Date().toLocaleTimeString()}`;
+      // update spark
+      sparkData.shift();
+      sparkData.push(2000 + Math.random()*400);
+      renderSpark(sparkData);
+    }
+  }
+
+  function renderSpark(data){
+    if(!marketSparkCtx) return;
+    // destroy previous chart if exists by storing it
+    if(window._sparkChart) { window._sparkChart.destroy(); window._sparkChart = null; }
+    window._sparkChart = new Chart(marketSparkCtx, {
+      type:'line',
+      data: { labels: data.map((_,i)=>i), datasets:[{ data: data, borderColor: 'rgba(135,206,235,0.95)', borderWidth:1.6, fill:false, pointRadius:0 }] },
+      options: { responsive:true, plugins:{legend:{display:false}}, scales:{x:{display:false}, y:{display:false}}, animation:false }
+    });
+  }
+
+  // initial fetch + interval
+  fetchMarketData();
+  setInterval(fetchMarketData, 30_000);
+
+  // ========== Demo dynamic values for summary (simulate updates) ==========
+  function simulateSummary(){
+    // try to read from localStorage for persistency demo
+    let balance = parseFloat(localStorage.getItem('merac_balance') || '5240.50');
+    let today = parseFloat(localStorage.getItem('merac_today') || '18.32');
+    let plan = localStorage.getItem('merac_plan') || 'Growth';
+
+    // small random walk
+    balance *= 1 + (Math.random()-0.5)*0.002;
+    today = (Math.random()*50 - 10).toFixed(2);
+    // persist
+    localStorage.setItem('merac_balance', balance.toFixed(2));
+    localStorage.setItem('merac_today', today);
+    localStorage.setItem('merac_plan', plan);
+
+    document.getElementById('totalBalance').textContent = `${Intl.NumberFormat().format(Number(balance).toFixed(2))} USD`;
+    document.getElementById('todaysProfit').textContent = `${Number(today).toFixed(2)} USD`;
+    document.getElementById('activePlan').textContent = plan;
+  }
+  simulateSummary();
+  setInterval(simulateSummary, 12_000);
+
+  // ========== Ensure lucide icons updated after dynamic injection ==========
+  // Already called createIcons on DOMContentLoaded and after each modal injection.
+
+  // ========== Small polish: focus outlines for accessibility ==========
+  (function addFocusStyles(){
+    const style = document.createElement('style');
+    style.textContent = `:focus{ outline: 3px solid rgba(135,206,235,0.12); outline-offset:3px }`;
+    document.head.appendChild(style);
+  })();
+
+  // End of script
+</script>
+</body>
+</html>
