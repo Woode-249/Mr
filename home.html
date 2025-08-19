@@ -458,92 +458,22 @@
 
   // ========== Hex buttons actions ==========
 
-  // PLAN modal (list plans + Invest actions)
+  // PLAN modal (redirect to plan.html)
   document.getElementById('btnPlan').addEventListener('click', ()=> {
-    const html = `
-      <h3>${I18N[currentLang].plan}</h3>
-      <p style="color:var(--muted);margin-top:8px">Choose an investment plan that suits you. Daily returns are credited automatically.</p>
-      <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:rgba(255,255,255,0.01);">
-          <div><strong>Starter</strong><div style="color:var(--muted);font-size:0.9rem">Min: $25 • Daily: 2%</div></div>
-          <div><button class="btn primary" onclick="investPlan('Starter')">${I18N[currentLang].invest}</button></div>
-        </div>
-
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:rgba(255,255,255,0.01);">
-          <div><strong>Growth</strong><div style="color:var(--muted);font-size:0.9rem">Min: $150 • Daily: 7%</div></div>
-          <div><button class="btn primary" onclick="investPlan('Growth')">${I18N[currentLang].invest}</button></div>
-        </div>
-
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:rgba(255,255,255,0.01);">
-          <div><strong>Pro</strong><div style="color:var(--muted);font-size:0.9rem">Min: $1,000 • Daily: up to 21%</div></div>
-          <div><button class="btn primary" onclick="investPlan('Pro')">${I18N[currentLang].invest}</button></div>
-        </div>
-      </div>
-    `;
-    openModal(html);
+    window.location.href = 'plan.html';
   });
 
-  window.investPlan = function(name){
-    closeModal();
-    alert(`Invest flow (demo): you chose ${name}. Connect to backend to complete investment.`);
-  };
-
-  // SUPPORT modal (contact form)
+  // SUPPORT modal (redirect to support.html)
   document.getElementById('btnSupport').addEventListener('click', ()=> {
-    const html = `
-      <h3>${I18N[currentLang].support}</h3>
-      <p style="color:var(--muted);margin-top:8px">Need help? Send us a message and our team will respond shortly.</p>
-      <form id="supportForm" style="margin-top:12px;display:flex;flex-direction:column;gap:8px;">
-        <input required placeholder="Name" id="supName" style="padding:10px;border-radius:8px;border:1px solid var(--glass-border);background:transparent;color:inherit" />
-        <input required type="email" placeholder="Email" id="supEmail" style="padding:10px;border-radius:8px;border:1px solid var(--glass-border);background:transparent;color:inherit" />
-        <textarea required id="supMsg" placeholder="Message" rows="4" style="padding:10px;border-radius:8px;border:1px solid var(--glass-border);background:transparent;color:inherit"></textarea>
-        <div style="display:flex;gap:8px;justify-content:flex-end;">
-          <button type="button" class="btn ghost" onclick="closeModal()">${I18N[currentLang].close}</button>
-          <button type="submit" class="btn primary">${I18N[currentLang].send}</button>
-        </div>
-      </form>
-    `;
-    openModal(html);
-    // form handler
-    setTimeout(()=> {
-      const form = document.getElementById('supportForm');
-      if(form){
-        form.addEventListener('submit', (e)=>{
-          e.preventDefault();
-          // demo: just show success
-          alert('Support request submitted (demo). Our team will contact you.');
-          closeModal();
-        });
-      }
-    }, 60);
+    window.location.href = 'support.html';
   });
 
-  // PROFILE modal (simple editable profile demo)
+  // PROFILE modal (redirect to Profile.html)
   document.getElementById('btnProfile').addEventListener('click', ()=> {
-    const html = `
-      <h3>${I18N[currentLang].profile}</h3>
-      <div style="color:var(--muted);margin-top:8px">Manage your basic profile information (demo).</div>
-      <form id="profileForm" style="margin-top:12px;display:flex;flex-direction:column;gap:8px;">
-        <input id="pfName" placeholder="Full name" value="Amar Ahmed" style="padding:10px;border-radius:8px;border:1px solid var(--glass-border);background:transparent;color:inherit" />
-        <input id="pfEmail" placeholder="Email" value="amar@example.com" style="padding:10px;border-radius:8px;border:1px solid var(--glass-border);background:transparent;color:inherit" />
-        <div style="display:flex;gap:8px;justify-content:flex-end;">
-          <button type="button" class="btn ghost" onclick="closeModal()">${I18N[currentLang].close}</button>
-          <button type="submit" class="btn primary">Save</button>
-        </div>
-      </form>
-    `;
-    openModal(html);
-    setTimeout(()=> {
-      const form = document.getElementById('profileForm');
-      if(form) form.addEventListener('submit', (e)=> {
-        e.preventDefault();
-        alert('Profile saved (demo).');
-        closeModal();
-      });
-    },60);
+    window.location.href = 'Profile.html';
   });
 
-  // TEAM modal
+  // TEAM modal (same as before, modal)
   document.getElementById('btnTeam').addEventListener('click', ()=> {
     const html = `
       <h3>${I18N[currentLang].team}</h3>
@@ -558,65 +488,14 @@
     openModal(html);
   });
 
-  // NEWS: navigate to /news (or open modal preview)
+  // NEWS: navigate to news.html
   document.getElementById('btnNews').addEventListener('click', ()=> {
-    // best UX: open short preview modal and offer to navigate.
-    const html = `
-      <h3>${I18N[currentLang].news}</h3>
-      <p style="color:var(--muted);margin-top:8px">Latest updates & important announcements. Open the full news page to read everything.</p>
-      <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end;">
-        <button class="btn ghost" onclick="closeModal()">${I18N[currentLang].close}</button>
-        <button class="btn primary" onclick="goToNews()">Open News</button>
-      </div>
-    `;
-    openModal(html);
+    window.location.href = 'news.html';
   });
 
-  window.goToNews = function(){
-    // navigate to /news (if exists) — fallback demo
-    closeModal();
-    try { window.location.href = '/news'; } catch(e){ alert('Open news (demo).'); }
-  };
-
-  // REPORTS modal with Chart.js demo
+  // REPORTS: navigate to reports.html
   document.getElementById('btnReports').addEventListener('click', ()=> {
-    const html = `
-      <h3>${I18N[currentLang].reports}</h3>
-      <p style="color:var(--muted);margin-top:8px">Quick performance report (demo).</p>
-      <div style="margin-top:12px;">
-        <canvas id="reportsChart" style="width:100%;max-height:320px"></canvas>
-      </div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px;">
-        <button class="btn ghost" onclick="closeModal()">${I18N[currentLang].close}</button>
-      </div>
-    `;
-    openModal(html);
-    // render chart shortly
-    setTimeout(()=> {
-      const ctx = document.getElementById('reportsChart')?.getContext('2d');
-      if(!ctx) return;
-      new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul'],
-          datasets: [{
-            label: 'Portfolio value (USD)',
-            data: [1200, 1700, 1500, 2200, 2600, 3300, 4100],
-            borderColor: '#87ceeb',
-            backgroundColor: (ctxGrad=>{
-              const g = ctxGrad.createLinearGradient(0,0,0,200);
-              g.addColorStop(0, 'rgba(135,206,235,0.18)');
-              g.addColorStop(1, 'rgba(135,206,235,0.02)');
-              return g;
-            })(ctx),
-            fill: true,
-            tension: 0.32,
-            pointRadius: 3
-          }]
-        },
-        options: { responsive:true, plugins:{legend:{display:false}} }
-      });
-    }, 80);
+    window.location.href = 'reports.html';
   });
 
   // Keyboard accessibility: Enter triggers button click for hex grid
